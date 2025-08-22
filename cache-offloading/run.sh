@@ -1,9 +1,10 @@
 #!/bin/bash
 
 DATESTR=$(date +"%Y%m%d-%H%M%S")
-BENCHMARK_RESULTS_FILE=/datasets/benchmark_results/deepseek-r1-0528-cache-offloading-${DATESTR}.json
-OUTPUT_LEN=1
-PROMPTS_NUM=50  # Number of prompts to use in the benchmark
+BENCHMARK_RESULTS_FILE=${BENCHMARK_RESULTS_FILE:-/datasets/benchmark_results/${DATESTR}.json}
+OUTPUT_LEN=${OUTPUT_LEN:-1}  # Default output length if not set
+PROMPTS_NUM=${PROMPTS_NUM:-50}  # Number of prompts to use in the benchmark
+SEED=$((RANDOM % 100))
 
 # 解析命令行参数，合并为 metadata_extra
 metadata_extra=""
@@ -31,7 +32,7 @@ run_benchmark() {
 
 run_random() {
     run_benchmark --dataset-name random \
-        --seed 42 \
+        --seed $SEED \
         --num-prompts $PROMPTS_NUM \
         --max-concurrency 16 \
         $@
