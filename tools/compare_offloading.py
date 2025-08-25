@@ -25,20 +25,22 @@ def extract_row(row, filename):
         'kvcache': row.get('kvcache', ''),
         'bandwidth': row.get('bandwidth', '') if 'bandwidth' in row else ('cpu' if row.get('kvcache', '') == 'cpu' else ''),
         'mean_ttft_ms': row.get('mean_ttft_ms', ''),
-        'std_ttft_ms': row.get('std_ttft_ms', ''),
+        'mean_itl_ms': row.get('mean_itl_ms', ''),
         'total_token_throughput': row.get('total_token_throughput', ''),
     }
 
 def main():
+    benchmark_name = 'benchmark_result_0822'
     files = [
-        'ds-0821-cpu-offloading.json',
-        'ds-0821-400g-disk-offloading.json',
-        'ds-0821-800g-disk-offloading.json',
+        'ds-0822-no-kvcache.json',
+        'ds-0822-cpu.json',
+        'ds-0822-disk-400g.json',
+        'ds-0822-disk-800g.json',
     ]
-    base_dir = os.path.dirname(__file__)
+    base_dir = os.path.dirname(os.path.dirname(__file__))
     all_rows = []
     for fname in files:
-        fpath = os.path.join(base_dir, 'cache-offloading', fname)
+        fpath = os.path.join(base_dir, benchmark_name, fname)
         if not os.path.exists(fpath):
             print(f"File not found: {fpath}")
             continue
@@ -48,9 +50,9 @@ def main():
                 all_rows.append(extracted)
     df = pd.DataFrame(all_rows)
     # 拼接 kvcache 和 bandwidth
-    df['cache_type'] = df['kvcache'].astype(str) + '-' + df['bandwidth'].astype(str)
+    df['cache_type'] = df['kvcache'].astype(str)
     # 只保留需要的列
-    df = df[['iteration', 'input_len', 'cache_type', 'mean_ttft_ms', 'std_ttft_ms', 'total_token_throughput']]
+    df = df[['iteration', 'input_len', 'cache_type', 'mean_ttft_ms', 'mean_itl_ms', 'total_token_throughput']]
     print(df.to_string(index=False))
     df.to_csv(os.path.join(base_dir, 'compare_offloading.csv'), index=False)
 

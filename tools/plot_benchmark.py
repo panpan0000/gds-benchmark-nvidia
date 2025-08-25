@@ -1,7 +1,13 @@
+import sys
 import json
 import matplotlib.pyplot as plt
 
-file_path = 'cache-offloading/deepseek-r1-0528-cache-offloading-20250821-235519.json'
+if len(sys.argv) < 3:
+    print("Usage: python plot_benchmark.py <json_path> <output_prefix>")
+    sys.exit(1)
+
+file_path = sys.argv[1]
+prefix = sys.argv[2]
 metrics = ['total_token_throughput', 'mean_ttft_ms', 'mean_itl_ms']
 input_lens = ["100", "1000", "10000", "50000", "100000"]
 colors = ['r', 'g', 'b', 'c', 'm', 'y', 'k']
@@ -30,11 +36,6 @@ metric_names = {
     'mean_ttft_ms': 'Mean TTFT (ms)',
     'mean_itl_ms': 'Mean ITL (ms)'
 }
-file_names = {
-    'total_token_throughput': 'benchmark_plot_throughput.png',
-    'mean_ttft_ms': 'benchmark_plot_ttft.png',
-    'mean_itl_ms': 'benchmark_plot_itl.png'
-}
 for m in metrics:
     plt.figure(figsize=(10,6))
     for idx, (iteration, input_dict) in enumerate(sorted(data_dict.items())):
@@ -50,5 +51,5 @@ for m in metrics:
     plt.yscale('log')
     plt.legend()
     plt.tight_layout()
-    plt.savefig(file_names[m])
+    plt.savefig(f'{prefix}_{m}.png')
     plt.close()
