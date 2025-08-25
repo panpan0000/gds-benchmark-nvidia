@@ -1,7 +1,8 @@
 #!/bin/bash
 
 DATESTR=$(date +"%Y%m%d-%H%M%S")
-BENCHMARK_RESULTS_FILE=${BENCHMARK_RESULTS_FILE:-/datasets/benchmark_results/${DATESTR}.json}
+OUTPUT_DIR=${OUTPUT_DIR:-/datasets/benchmark_results}
+BENCHMARK_RESULTS_FILE=${BENCHMARK_RESULTS_FILE:-${DATESTR}.json}
 OUTPUT_LEN=${OUTPUT_LEN:-1}  # Default output length if not set
 PROMPTS_NUM=${PROMPTS_NUM:-50}  # Number of prompts to use in the benchmark
 SEED=$((RANDOM % 100))
@@ -26,7 +27,7 @@ run_benchmark() {
         --save-result \
         --save-detailed \
         --append-result \
-        --result-filename "$BENCHMARK_RESULTS_FILE" \
+        --result-filename "$OUTPUT_DIR/$BENCHMARK_RESULTS_FILE" \
         $@
 }
 
@@ -68,7 +69,7 @@ repeatn() {
 }
 
 # 启动 GPU 利用率采集
-nohup nvidia-smi --query-gpu=timestamp,index,name,utilization.gpu,utilization.memory,memory.used,memory.total --format=csv -l 1 > gpu_usage.log 2>&1 &
+nohup nvidia-smi --query-gpu=timestamp,index,name,utilization.gpu,utilization.memory,memory.used,memory.total --format=csv -l 1 > "$OUTPUT_DIR/gpu_usage.log" 2>&1 &
 
 # run random for 100, 1k, 10k, 50k, 100k 3 times each
 warmup
@@ -83,4 +84,3 @@ done
 
 # 停止 GPU 利用率采集
 pkill -f "nvidia-smi --query-gpu"
-
