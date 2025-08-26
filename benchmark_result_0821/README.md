@@ -9,6 +9,7 @@
 | 3  |   Local Disk |  200Gbps      |       N      |
 | 4  |   Local Disk |  100Gbps      |       Y      |
 | 5  |   Local Disk |  200Gbps      |       Y      |
+| 6  |   GDS        |  100Gbps      |       Y      |
 
 ## 部署参数
 

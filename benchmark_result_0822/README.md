@@ -8,13 +8,14 @@
 | 2  |   CPU        |  N/A          |       N      |
 | 3  |   Local Disk |  100Gbps      |       Y      |
 | 4  |   Local Disk |  200Gbps      |       Y      |
+| 5  |   GDS        |  100Gbps      |       Y      |
 
 ## 部署参数
 
 除了硬件上的差异，我们采用相同的部署参数来进行压测
 
 - vLLM 通用参数：TP=8，关闭前缀缓存，使用LMCacheConnectorV1 (--tensor-parallel-size 8 --no-enable-prefix-caching --disable-log-requests -kv-transfer-config '{\"kv_connector\":\"LMCacheConnectorV1\", \"kv_role\":\"kv_both\"}')
-- LMCache：chunk_size=256，max_local_cpu_size=100.0 
+- LMCache：chunk_size=256，**max_local_cpu_size=50.0** 
 
 更详细信息可以参考： [auto_benchmark.sh](../tools/auto_benchmark.sh)
 
@@ -24,8 +25,8 @@
 
 - 并发数：16
 - 输入长度：100/1k/10k/50k/100k
-- 输出长度：20
-- 迭代数：20
+- **输出长度：20**
+- **迭代数：20**
 
 (作为参考，全部压测完生成的kv cache大约是1.1TB)
 
