@@ -15,7 +15,7 @@
 除了硬件上的差异，我们采用相同的部署参数来进行压测
 
 - vLLM 通用参数：TP=8，关闭前缀缓存，使用LMCacheConnectorV1 (--tensor-parallel-size 8 --no-enable-prefix-caching --disable-log-requests -kv-transfer-config '{\"kv_connector\":\"LMCacheConnectorV1\", \"kv_role\":\"kv_both\"}')
-- LMCache：chunk_size=256，**max_local_cpu_size=50.0** 
+- LMCache：chunk_size=256，**max_local_cpu_size=50.0**
 
 更详细信息可以参考： [auto_benchmark.sh](../tools/auto_benchmark.sh)
 
@@ -31,3 +31,13 @@
 (作为参考，全部压测完生成的kv cache大约是1.1TB)
 
 更多详细信息可以参考： [run.sh](../tools/run.sh)
+
+## 结果
+
+| 编号| mean ttft (ms) | mean itl(ms)  |    total token throughput(tok/s)     |
+| --- | ----------- | ----- | -------------------- |
+| 1  |  ![](./ds-0822-no-kvcache_mean_ttft_ms.png) |  ![](./ds-0822-no-kvcache_mean_itl_ms.png)        |      ![](./ds-0822-no-kvcache_total_token_throughput.png)     |
+| 2  |  ![](./ds-0822-cpu_mean_ttft_ms.png) |  ![](./ds-0822-cpu_mean_itl_ms.png)          |      ![](./ds-0822-cpu_total_token_throughput.png)     |
+| 3  |  ![](./ds-0822-disk-400g_mean_ttft_ms.png) | ![](./ds-0822-disk-400g_mean_itl_ms.png)  |   ![](./ds-0822-disk-400g_total_token_throughput.png)      |
+| 4  |   ![](./ds-0822-disk-800g_mean_ttft_ms.png) |  ![](./ds-0822-disk-800g_mean_itl_ms.png) | ![](./ds-0822-disk-800g_total_token_throughput.png) |
+| 5  |  ![](./ds-0825-gds-400g_mean_ttft_ms.png) | ![](./ds-0825-gds-400g_mean_itl_ms.png) | ![](./ds-0825-gds-400g_total_token_throughput.png)   |

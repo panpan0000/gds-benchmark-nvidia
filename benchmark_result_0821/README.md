@@ -32,3 +32,14 @@
 (作为参考 100k token长度50轮生成的kv cache大约是1.2TB)
 
 更多详细信息可以参考： [run.sh](../tools/run.sh)
+
+## 结果
+
+| 编号| mean ttft (ms) |  total token throughput(tok/s)     |
+| --- | ----------- | -------------------- |
+| 1  | ![cpu_benchmark_ttft.png](cpu_benchmark_ttft.png) | ![cpu_benchmark_throughput.png](cpu_benchmark_throughput.png) |
+| 2  | ![400gbps_benchmark_ttft.png](400gbps_benchmark_ttft.png) | ![400gbps_benchmark_throughput.png](400gbps_benchmark_throughput.png) |
+| 3  | ![800gbps_benchmark_ttft.png](800gbps_benchmark_ttft.png) | ![800gbps_benchmark_throughput.png](800gbps_benchmark_throughput.png) |
+| 4  | ![400gbps_arcc_benchmark_ttft.png](400gbps_arcc_benchmark_ttft.png) | ![400gbps_arcc_benchmark_throughput.png](400gbps_arcc_benchmark_throughput.png) |
+| 5  | ![800gbps_arcc_benchmark_ttft.png](800gbps_arcc_benchmark_ttft.png) | ![800gbps_arcc_benchmark_throughput.png](800gbps_arcc_benchmark_throughput.png) |
+| 6  | ![gds_400gbps_benchmark_ttft.png](gds_400gbps_benchmark_ttft.png) | ![gds_400gbps_benchmark_throughput.png](gds_400gbps_benchmark_throughput.png) |
