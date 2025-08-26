@@ -2,13 +2,14 @@
 set -x
 set -e
 
-IMAGE="lmcache/vllm-openai:v0.3.3"
+IMAGE="lmcache/vllm-openai:v0.3.3-gds"
 BENCHMARK_IMAGE="vllm-benchmark:latest"
 CONTAINER_NAME="vllm-server"
 BENCHMARK_CONTAINER_NAME="vllm-benchmark"
 HOST_IP="10.20.10.2"
 MODEL_PATH="/models/DeepSeek-R1-0528"
 TP_SIZE=8
+CPU_CACHE=50
 
 # 挂载参数
 MOUNTS=(
@@ -19,17 +20,21 @@ MOUNTS=(
     -v "/mnt/NVMe-oF800:/mnt/800gb"
 )
 
-VLLM_COMMON_ARGS="/opt/venv/bin/vllm serve $MODEL_PATH --served-model-name deepseek-ai/deepseek-r1-0528 --tensor-parallel-size $TP_SIZE --no-enable-prefix-caching --disable-log-requests --enforce-eager"
-LMCACHE_COMMON_ARGS="LMCACHE_USE_EXPERIMENTAL=True LMCACHE_CHUNK_SIZE=256 LMCACHE_MAX_LOCAL_CPU_SIZE=100.0"
+VLLM_COMMON_ARGS="/opt/venv/bin/vllm serve $MODEL_PATH --served-model-name deepseek-ai/deepseek-r1-0528 --tensor-parallel-size $TP_SIZE --no-enable-prefix-caching --disable-log-requests"
+LMCACHE_COMMON_ARGS="LMCACHE_USE_EXPERIMENTAL=True LMCACHE_CHUNK_SIZE=256 LMCACHE_MAX_LOCAL_CPU_SIZE=$CPU_CACHE"
 
 # 启动命令数组
+CMD5="$LMCACHE_COMMON_ARGS LMCACHE_CUFILE_BUFFER_SIZE="8192" LMCACHE_LOCAL_CPU=False LMCACHE_GDS_PATH=\"/mnt/400gb/cache/deepseek-r1-gds/\" LMCACHE_EXTRA_CONFIG='{\"create_lookup_server_only_on_worker_0\":true}' $VLLM_COMMON_ARGS --kv-transfer-config '{\"kv_connector\":\"LMCacheConnectorV1\", \"kv_role\":\"kv_both\"}'"
+CMD6="$LMCACHE_COMMON_ARGS LMCACHE_CUFILE_BUFFER_SIZE="8192" LMCACHE_LOCAL_CPU=False LMCACHE_GDS_PATH=\"/mnt/800gb/cache/deepseek-r1-gds/\" LMCACHE_EXTRA_CONFIG='{\"create_lookup_server_only_on_worker_0\":true}' $VLLM_COMMON_ARGS --kv-transfer-config '{\"kv_connector\":\"LMCacheConnectorV1\", \"kv_role\":\"kv_both\"}'"
 CMD1="$LMCACHE_COMMON_ARGS LMCACHE_LOCAL_DISK=\"file:///mnt/400gb/cache/deepseek-r1-file/\" LMCACHE_MAX_LOCAL_DISK_SIZE=5000.0 $VLLM_COMMON_ARGS --kv-transfer-config '{\"kv_connector\":\"LMCacheConnectorV1\", \"kv_role\":\"kv_both\"}'"
 CMD2="$LMCACHE_COMMON_ARGS LMCACHE_LOCAL_DISK=\"file:///mnt/800gb/cache/deepseek-r1-file/\" LMCACHE_MAX_LOCAL_DISK_SIZE=5000.0 $VLLM_COMMON_ARGS --kv-transfer-config '{\"kv_connector\":\"LMCacheConnectorV1\", \"kv_role\":\"kv_both\"}'"
 CMD3="$LMCACHE_COMMON_ARGS $VLLM_COMMON_ARGS --kv-transfer-config '{\"kv_connector\":\"LMCacheConnectorV1\", \"kv_role\":\"kv_both\"}'"
 CMD4="$VLLM_COMMON_ARGS"
 
-CMDS=("$CMD1" "$CMD2" "$CMD3" "$CMD4")
+CMDS=("$CMD5" "$CMD6")
 METADATAS=(
+    "kvcache=gds-400g chunksize=256"
+    "kvcache=gds-800g chunksize=256"
     "kvcache=disk-400g chunksize=256"
     "kvcache=disk-800g chunksize=256"
     "kvcache=cpu chunksize=256"
@@ -37,6 +42,8 @@ METADATAS=(
 )
 DATESTR=$(date +"%Y%m%d-%H%M%S")
 OUTPUT_NAMES=(
+    "ds-${DATESTR}-gds-400g"
+    "ds-${DATESTR}-gds-800g"
     "ds-${DATESTR}-disk-400g"
     "ds-${DATESTR}-disk-800g"
     "ds-${DATESTR}-cpu"
@@ -93,6 +100,7 @@ vllm_serve() {
         --network host \
         --shm-size 10.24g \
         --gpus all \
+        --rm \
         -d \
         --name $CONTAINER_NAME \
         -e VLLM_HOST_IP=$HOST_IP \
@@ -136,13 +144,17 @@ clean_cache() {
     remove_container "$BENCHMARK_CONTAINER_NAME"
     echo "Cleaning up old results..."
     rm -rf /400Gb/cache/deepseek-r1-file/
+    rm -rf /400Gb/cache/deepseek-r1-gds/
     mkdir -p /400Gb/cache/deepseek-r1-file/
+    mkdir -p /400Gb/cache/deepseek-r1-gds/
     rm -rf /mnt/NVMe-oF800/cache/deepseek-r1-file/
+    rm -rf /mnt/NVMe-oF800/cache/deepseek-r1-gds/
+    mkdir -p /mnt/NVMe-oF800/cache/deepseek-r1-gds/
     mkdir -p /mnt/NVMe-oF800/cache/deepseek-r1-file/
 }
 
 clean_cache
-for idx in 0 1 2 3; do
+for idx in 1 0; do
     echo "=============================="
     echo "[Step $((idx+1))] Starting vllm server with config $((idx+1))..."
     # 停止并删除旧容器
@@ -162,4 +174,3 @@ for idx in 0 1 2 3; do
 done
 
 echo "All benchmarks finished."
-
