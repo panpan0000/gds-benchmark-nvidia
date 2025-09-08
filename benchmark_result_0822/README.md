@@ -6,9 +6,9 @@
 | --- | ----------- | ----- | -------------------- |
 | 1  |   No KVCache |  N/A          |       N      |
 | 2  |   CPU        |  N/A          |       N      |
-| 3  |   Local Disk |  100Gbps      |       Y      |
-| 4  |   Local Disk |  200Gbps      |       Y      |
-| 5  |   GDS        |  100Gbps      |       Y      |
+| 3  |   Local Disk |  400Gbps      |       Y      |
+| 4  |   Local Disk |  800Gbps      |       Y      |
+| 5  |   GDS        |  400Gbps      |       Y      |
 
 ## 部署参数
 

@@ -5,11 +5,11 @@
 | 编号| Offloading 方式 |  带宽  |     ARCC 开启     |
 | --- | ----------- | ----- | -------------------- |
 | 1  |   CPU        |  N/A          |       N      |
-| 2  |   Local Disk |  100Gbps      |       N      |
-| 3  |   Local Disk |  200Gbps      |       N      |
-| 4  |   Local Disk |  100Gbps      |       Y      |
-| 5  |   Local Disk |  200Gbps      |       Y      |
-| 6  |   GDS        |  100Gbps      |       Y      |
+| 2  |   Local Disk |  400Gbps      |       N      |
+| 3  |   Local Disk |  800Gbps      |       N      |
+| 4  |   Local Disk |  400Gbps      |       Y      |
+| 5  |   Local Disk |  800Gbps      |       Y      |
+| 6  |   GDS        |  400Gbps      |       Y      |
 
 ## 部署参数
 
