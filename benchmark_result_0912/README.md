@@ -8,7 +8,7 @@
 | 1  |   Local Disk |  800Gbps      |       N      |
 | 2  |   GDS        |  400Gbps      |       N      |
 | 3  |   Local Disk        |  800Gbps      |       Y      |
-| 4  |   GDS        |  800Gbps      |       N      |
+| 4  |   GDS        |  800Gbps      |       Y      |
 
 
 ## 部署参数
