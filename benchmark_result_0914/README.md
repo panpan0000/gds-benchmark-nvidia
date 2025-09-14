@@ -1,13 +1,11 @@
-# KVCache Benchmark Results (2025-09-12)
+# KVCache Benchmark Results (2025-09-14)
 
-本轮测试主要是关闭了CPU offloading的场景，重测南北向100k token长度下，开启和关闭arcc时，800Gbps带宽的差异。此外为了保证结果稳定性，所有场景均测试了10轮，取2~10轮的平均值作为最终结果。
+本轮测试主要是关闭了CPU offloading的场景，重测**东西向**100k token长度下，开启arcc时，800Gbps带宽的差异。此外为了保证结果稳定性，所有场景均测试了10轮，取2~10轮的平均值作为最终结果。和 0910（未开ARCC）、0912（南北向） 的数据形成比对：
 
 
 | 编号| Offloading 方式 |  带宽  |     ARCC 开启     |
 | --- | ----------- | ----- | -------------------- |
-| 1  |   Local Disk |  800Gbps      |       N      |
-| 2  |   GDS        |  800Gbps      |       N      |
-| 3  |   Local Disk        |  800Gbps      |       Y      |
+| 3  |   Local Disk |  800Gbps      |       Y      |
 | 4  |   GDS        |  800Gbps      |       Y      |
 
 
