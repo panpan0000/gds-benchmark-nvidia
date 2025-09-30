@@ -37,6 +37,8 @@
   - `python3 tools/compare_offloading.py -o media_compare.csv`
 - 绘制 Prefill TTFT 介质对比图（可选）：
   - `python3 tools/compare_offloading.py -o media_compare.csv --plot --plot-out plots/media_prefill_ttft.png`
+- 绘制 Prefill 吞吐(throughput) 介质对比图（可选）：
+  - `python3 tools/compare_offloading.py -o media_compare.csv --plot-throughput --plot-throughput-out plots/media_prefill_throughput.png`
 - 仅扫描指定目录（示例）：
   - `python3 tools/compare_offloading.py -o media_compare.csv --include-dirs benchmark_result_0910 benchmark_result_0912`
 

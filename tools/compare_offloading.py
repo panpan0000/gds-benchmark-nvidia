@@ -243,6 +243,9 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument('--include-dirs', nargs='*', default=None, help='限定扫描的benchmark目录名称，如 benchmark_result_0910')
     p.add_argument('--plot', action='store_true', help='是否在输出CSV的同时绘制prefill TTFT对比图')
     p.add_argument('--plot-out', default='plots/media_prefill_ttft.png', help='对比图输出路径')
+    # 吞吐对比（介质）
+    p.add_argument('--plot-throughput', action='store_true', help='是否绘制prefill 吞吐(throughput)的介质对比图')
+    p.add_argument('--plot-throughput-out', default='plots/media_prefill_throughput.png', help='吞吐对比图输出路径')
     # 网络对比
     p.add_argument('--network-out', default=None, help='输出网络维度CSV路径（相对于仓库根），仅包含GDS记录')
     p.add_argument('--plot-network', action='store_true', help='绘制GDS网络维度的prefill TTFT对比图')
@@ -346,6 +349,48 @@ def plot_network_prefill_ttft(rows: List[Dict], out_path: str) -> None:
     print(f'Plot saved to {out_path}')
 
 
+def plot_prefill_throughput_by_modality(rows: List[Dict], out_path: str) -> None:
+    """绘制不同介质(HBM/CPU/Local Disk/GDS)的 Prefill 吞吐(throughput)对比图，X为 input_len，Y为 total_token_throughput。
+    对相同 (modality, input_len) 取平均后绘制折线。
+    """
+    try:
+        import matplotlib.pyplot as plt
+    except Exception as e:
+        print(f"Warn: matplotlib not available, skip plotting: {e}")
+        return
+
+    dff = [r for r in rows if r.get('phase') == 'prefill' and r.get('total_token_throughput') is not None and r.get('input_len') is not None]
+    if len(dff) == 0:
+        print('Warn: no prefill rows with throughput to plot.')
+        return
+
+    modalities = ['HBM', 'CPU', 'Local Disk', 'GDS']
+    plt.figure(figsize=(10, 6))
+    grouped: Dict[Tuple[str, int], List[float]] = {}
+    for r in dff:
+        key = (r['modality'], int(r['input_len']))
+        grouped.setdefault(key, []).append(float(r['total_token_throughput']))
+
+    for m in modalities:
+        pts = [(il, mean(grouped[(m, il)])) for (mod, il) in grouped.keys() if mod == m]
+        if not pts:
+            continue
+        pts.sort(key=lambda x: x[0])
+        xs = [p[0] for p in pts]
+        ys = [p[1] for p in pts]
+        plt.plot(xs, ys, marker='s', label=m)
+    plt.xlabel('Input Length (tokens)')
+    plt.ylabel('Total Token Throughput')
+    plt.title('Prefill Throughput by KV-Cache Modality')
+    plt.grid(True, linestyle='--', alpha=0.3)
+    plt.legend()
+    os.makedirs(os.path.dirname(out_path), exist_ok=True)
+    plt.tight_layout()
+    plt.savefig(out_path)
+    plt.close()
+    print(f'Plot saved to {out_path}')
+
+
 def main():
     parser = build_parser()
     args = parser.parse_args()
@@ -378,6 +423,11 @@ def main():
     if args.plot:
         plot_out = os.path.join(repo_root, args.plot_out)
         plot_prefill_ttft(all_rows, plot_out)
+
+    # 可选绘图（prefill 吞吐）
+    if args.plot_throughput:
+        plot_throughput_out = os.path.join(repo_root, args.plot_throughput_out)
+        plot_prefill_throughput_by_modality(all_rows, plot_throughput_out)
 
     # 网络维度CSV输出（GDS）
     if args.network_out:
